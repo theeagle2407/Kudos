@@ -1,0 +1,23 @@
+{
+  "name": "kudos",
+  "version": "1.0.0",
+  "description": "Direct creator tipping platform. Creators keep 99%.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'",
+    "deploy": "vercel"
+  },
+  "keywords": [
+    "creator",
+    "tipping",
+    "near",
+    "web3",
+    "payments"
+  ],
+  "author": "Kudos Team",
+  "license": "MIT",
+  "dependencies": {
+    "near-api-js": "^4.0.0"
+  }
+}

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Creator - Kudos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header" style="padding: 30px 0;">
+            <a href="index.html" style="text-decoration: none;">
+                <h1 style="font-size: 2em;">💙 KUDOS</h1>
+            </a>
+        </div>
+
+        <!-- Creator Profile -->
+        <div class="card creator-profile">
+            <div class="creator-avatar" id="creatorAvatar">👨‍🎨</div>
+            <h2 class="creator-name" id="creatorName">Demo Creator</h2>
+            <p class="creator-bio" id="creatorBio">
+                Thank you for your support! Every Kudos helps me create more amazing content for you. 💙
+            </p>
+        </div>
+
+        <!-- Wallet Connection -->
+        <div class="wallet-section">
+            <div id="walletStatus">
+                <button class="btn" onclick="connectWallet()">
+                    Connect Wallet to Send Kudos
+                </button>
+            </div>
+        </div>
+
+        <!-- Tip Section (Hidden until wallet connected) -->
+        <div id="tipSection" style="display: none;">
+            <div class="card" style="max-width: 600px; margin: 30px auto;">
+                <h3 style="color: #1F2937; margin-bottom: 20px; font-size: 1.8em; text-align: center;">
+                    Send Kudos 💙
+                </h3>
+                
+                <!-- Preset Amounts -->
+                <div class="tip-grid">
+                    <button class="tip-btn" onclick="selectAmount(5)">$5</button>
+                    <button class="tip-btn" onclick="selectAmount(10)">$10</button>
+                    <button class="tip-btn" onclick="selectAmount(25)">$25</button>
+                    <button class="tip-btn" onclick="selectAmount(50)">$50</button>
+                </div>
+
+                <!-- Custom Amount -->
+                <div style="margin: 25px 0;">
+                    <label style="display: block; margin-bottom: 10px; color: #6B7280; font-weight: 600;">
+                        Or enter custom amount:
+                    </label>
+                    <input 
+                        type="number" 
+                        id="customAmount" 
+                        placeholder="Enter amount in USD"
+                        min="1"
+                        onchange="selectAmount(this.value)"
+                    >
+                </div>
+
+                <!-- Selected Amount Display -->
+                <div id="selectedAmountDisplay" style="display: none; text-align: center; margin: 25px 0;">
+                    <div style="color: #6B7280; margin-bottom: 5px;">You're sending:</div>
+                    <div style="font-size: 2.5em; font-weight: 800; color: #2563EB;">
+                        $<span id="selectedAmount">0</span>
+                    </div>
+                    <div style="color: #10B981; margin-top: 5px; font-weight: 600;">
+                        Creator receives: $<span id="creatorReceives">0</span> (99%)
+                    </div>
+                </div>
+
+                <!-- Send Button -->
+                <button 
+                    class="btn" 
+                    id="sendButton"
+                    onclick="sendKudos()"
+                    style="width: 100%; font-size: 1.2em; margin-top: 20px;"
+                    disabled
+                >
+                    Select Amount First
+                </button>
+
+                <!-- Status Messages -->
+                <div id="statusMessage"></div>
+            </div>
+        </div>
+
+        <!-- Recent Supporters -->
+        <div class="card" style="max-width: 700px; margin: 40px auto;">
+            <h3 style="color: #1F2937; margin-bottom: 20px; font-size: 1.5em;">
+                Recent Supporters 💙
+            </h3>
+            <div id="recentSupporters">
+                <div class="transaction-item">
+                    <div>
+                        <div style="font-weight: 600;">Anonymous</div>
+                        <div class="transaction-from">2 hours ago</div>
+                    </div>
+                    <div class="transaction-amount">$25</div>
+                </div>
+                <div class="transaction-item">
+                    <div>
+                        <div style="font-weight: 600;">@supporter123</div>
+                        <div class="transaction-from">5 hours ago</div>
+                    </div>
+                    <div class="transaction-amount">$10</div>
+                </div>
+                <div class="transaction-item">
+                    <div>
+                        <div style="font-weight: 600;">Anonymous</div>
+                        <div class="transaction-from">1 day ago</div>
+                    </div>
+                    <div class="transaction-amount">$50</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Powered by Kudos • NEAR Protocol</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/near-api-js@4.0.0/dist/near-api-js.min.js"></script>
+    <script>
+        let selectedTipAmount = 0;
+        let walletConnection = null;
+        let accountId = null;
+
+        // Get creator ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const creatorId = urlParams.get('id') || 'demo';
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadCreatorInfo();
+        });
+
+        function loadCreatorInfo() {
+            // In real version, fetch from API
+            // For demo, show demo creator
+            document.getElementById('creatorName').textContent = '@' + creatorId;
+        }
+
+        async function connectWallet() {
+            try {
+                // Simulate wallet connection
+                accountId = prompt('Enter your NEAR account (e.g., yourname.testnet):');
+                
+                if (accountId && accountId.trim()) {
+                    // Show connected state
+                    document.getElementById('walletStatus').innerHTML = `
+                        <div class="wallet-connected">
+                            ✓ Connected: ${accountId}
+                        </div>
+                    `;
+                    
+                    // Show tip section
+                    document.getElementById('tipSection').style.display = 'block';
+                    
+                    // Scroll to tip section
+                    document.getElementById('tipSection').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Please enter a valid NEAR account');
+                }
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        function selectAmount(amount) {
+            selectedTipAmount = parseFloat(amount);
+            
+            if (selectedTipAmount > 0) {
+                // Calculate creator receives (99%)
+                const creatorReceives = (selectedTipAmount * 0.99).toFixed(2);
+                
+                // Update display
+                document.getElementById('selectedAmount').textContent = selectedTipAmount.toFixed(2);
+                document.getElementById('creatorReceives').textContent = creatorReceives;
+                document.getElementById('selectedAmountDisplay').style.display = 'block';
+                
+                // Enable send button
+                const sendBtn = document.getElementById('sendButton');
+                sendBtn.disabled = false;
+                sendBtn.textContent = `Send $${selectedTipAmount} Kudos 💙`;
+            }
+        }
+
+        async function sendKudos() {
+            if (!accountId) {
+                alert('Please connect your wallet first');
+                return;
+            }
+
+            if (selectedTipAmount <= 0) {
+                alert('Please select an amount');
+                return;
+            }
+
+            try {
+                // Disable button
+                const sendBtn = document.getElementById('sendButton');
+                sendBtn.disabled = true;
+                sendBtn.textContent = 'Processing...';
+
+                // Show processing message
+                document.getElementById('statusMessage').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #2563EB;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">⏳</div>
+                        <div>Processing your Kudos...</div>
+                    </div>
+                `;
+
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Calculate amounts
+                const creatorReceives = (selectedTipAmount * 0.99).toFixed(2);
+
+                // Show success
+                document.getElementById('statusMessage').innerHTML = `
+                    <div class="success-message">
+                        <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
+                        <div style="font-size: 1.2em; margin-bottom: 10px;">Kudos Sent Successfully!</div>
+                        <div>@${creatorId} received $${creatorReceives}</div>
+                        <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                            Transaction recorded on NEAR blockchain
+                        </div>
+                    </div>
+                `;
+
+                // Add to recent supporters
+                const supportersList = document.getElementById('recentSupporters');
+                const newSupporter = document.createElement('div');
+                newSupporter.className = 'transaction-item';
+                newSupporter.innerHTML = `
+                    <div>
+                        <div style="font-weight: 600;">${accountId}</div>
+                        <div class="transaction-from">Just now</div>
+                    </div>
+                    <div class="transaction-amount">$${selectedTipAmount}</div>
+                `;
+                supportersList.insertBefore(newSupporter, supportersList.firstChild);
+
+                // Reset form after 3 seconds
+                setTimeout(() => {
+                    selectedTipAmount = 0;
+                    document.getElementById('customAmount').value = '';
+                    document.getElementById('selectedAmountDisplay').style.display = 'none';
+                    sendBtn.disabled = true;
+                    sendBtn.textContent = 'Select Amount First';
+                    document.getElementById('statusMessage').innerHTML = '';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Send error:', error);
+                document.getElementById('statusMessage').innerHTML = `
+                    <div class="error-message">
+                        Failed to send Kudos. Please try again.
+                    </div>
+                `;
+                
+                // Re-enable button
+                const sendBtn = document.getElementById('sendButton');
+                sendBtn.disabled = false;
+                sendBtn.textContent = `Send $${selectedTipAmount} Kudos 💙`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Dashboard - Kudos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header" style="padding: 30px 0;">
+            <a href="index.html" style="text-decoration: none;">
+                <h1 style="font-size: 2em;">💙 KUDOS</h1>
+            </a>
+            <p class="tagline">Creator Dashboard</p>
+        </div>
+
+        <!-- Wallet Connection -->
+        <div class="wallet-section">
+            <div id="walletStatus">
+                <button class="btn" onclick="connectWallet()">
+                    Connect Wallet to View Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Content (Hidden until wallet connected) -->
+        <div id="dashboardContent" style="display: none;">
+            
+            <!-- Welcome Message -->
+            <div class="card" style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #1F2937; margin-bottom: 10px;">
+                    Welcome back, <span id="creatorName">Creator</span>! 👋
+                </h2>
+                <p style="color: #6B7280;">
+                    Your Kudos profile: <a href="#" id="profileLink" style="color: #2563EB; font-weight: 600;"></a>
+                </p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Earnings</div>
+                    <div class="stat-number">$<span id="totalEarnings">0</span></div>
+                    <div style="opacity: 0.9; margin-top: 5px; font-size: 0.9em;">
+                        After 1% fee
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Tips</div>
+                    <div class="stat-number" id="totalTips">0</div>
+                    <div style="opacity: 0.9; margin-top: 5px; font-size: 0.9em;">
+                        All time
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-number">$<span id="monthEarnings">0</span></div>
+                    <div style="opacity: 0.9; margin-top: 5px; font-size: 0.9em;">
+                        Last 30 days
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Average Tip</div>
+                    <div class="stat-number">$<span id="avgTip">0</span></div>
+                    <div style="opacity: 0.9; margin-top: 5px; font-size: 0.9em;">
+                        Per supporter
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card" style="text-align: center; margin: 30px 0;">
+                <h3 style="color: #1F2937; margin-bottom: 20px;">Quick Actions</h3>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="shareProfile()">
+                        📤 Share Profile
+                    </button>
+                    <button class="btn btn-secondary" onclick="withdrawFunds()">
+                        💰 Withdraw Funds
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewAnalytics()">
+                        📊 View Analytics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Tips -->
+            <div class="card">
+                <h3 style="color: #1F2937; margin-bottom: 20px; font-size: 1.8em;">
+                    Recent Tips 💙
+                </h3>
+                <div class="transaction-list" id="recentTips">
+                    <!-- Tips will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Status Message -->
+            <div id="statusMessage"></div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Powered by Kudos • NEAR Protocol</p>
+        </div>
+    </div>
+
+    <script>
+        let accountId = null;
+        let tipsData = [];
+
+        // Initialize
+        window.addEventListener('load', () => {
+            // Check if already connected (in real app, check localStorage)
+        });
+
+        async function connectWallet() {
+            try {
+                // Simulate wallet connection
+                accountId = prompt('Enter your NEAR account (e.g., creator.testnet):');
+                
+                if (accountId && accountId.trim()) {
+                    // Show connected state
+                    document.getElementById('walletStatus').innerHTML = `
+                        <div class="wallet-connected">
+                            ✓ Connected: ${accountId}
+                        </div>
+                    `;
+                    
+                    // Show dashboard
+                    document.getElementById('dashboardContent').style.display = 'block';
+                    
+                    // Load dashboard data
+                    loadDashboard();
+                    
+                    // Scroll to dashboard
+                    document.getElementById('dashboardContent').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Please enter a valid NEAR account');
+                }
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        function loadDashboard() {
+            // Set creator name
+            document.getElementById('creatorName').textContent = '@' + accountId.split('.')[0];
+            
+            // Set profile link
+            const profileLink = `creator.html?id=${accountId.split('.')[0]}`;
+            document.getElementById('profileLink').href = profileLink;
+            document.getElementById('profileLink').textContent = `kudos.app/${accountId.split('.')[0]}`;
+
+            // Generate demo data
+            generateDemoData();
+            
+            // Update stats
+            updateStats();
+            
+            // Load recent tips
+            loadRecentTips();
+        }
+
+        function generateDemoData() {
+            // Generate realistic demo tips
+            const supporters = ['alice.testnet', 'bob.testnet', 'charlie.testnet', 'dana.testnet', 'eve.testnet', 'Anonymous', 'Anonymous'];
+            const amounts = [5, 10, 15, 25, 50, 100];
+            const times = ['2 minutes ago', '1 hour ago', '3 hours ago', '5 hours ago', '1 day ago', '2 days ago', '3 days ago', '5 days ago'];
+            
+            tipsData = [];
+            const numTips = Math.floor(Math.random() * 5) + 8; // 8-12 tips
+            
+            for (let i = 0; i < numTips; i++) {
+                const amount = amounts[Math.floor(Math.random() * amounts.length)];
+                tipsData.push({
+                    from: supporters[Math.floor(Math.random() * supporters.length)],
+                    amount: amount,
+                    received: (amount * 0.99).toFixed(2),
+                    time: times[Math.min(i, times.length - 1)],
+                    timestamp: Date.now() - (i * 3600000) // Hours ago
+                });
+            }
+        }
+
+        function updateStats() {
+            // Calculate total earnings
+            const totalEarnings = tipsData.reduce((sum, tip) => sum + parseFloat(tip.received), 0);
+            document.getElementById('totalEarnings').textContent = totalEarnings.toFixed(2);
+            
+            // Total tips count
+            document.getElementById('totalTips').textContent = tipsData.length;
+            
+            // This month (last 30 days)
+            const thirtyDaysAgo = Date.now() - (30 * 24 * 3600000);
+            const monthTips = tipsData.filter(tip => tip.timestamp > thirtyDaysAgo);
+            const monthEarnings = monthTips.reduce((sum, tip) => sum + parseFloat(tip.received), 0);
+            document.getElementById('monthEarnings').textContent = monthEarnings.toFixed(2);
+            
+            // Average tip
+            const avgTip = tipsData.length > 0 ? totalEarnings / tipsData.length : 0;
+            document.getElementById('avgTip').textContent = avgTip.toFixed(2);
+        }
+
+        function loadRecentTips() {
+            const container = document.getElementById('recentTips');
+            
+            if (tipsData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6B7280; padding: 30px;">No tips yet. Share your profile to start receiving Kudos!</p>';
+                return;
+            }
+            
+            container.innerHTML = tipsData.map(tip => `
+                <div class="transaction-item">
+                    <div>
+                        <div style="font-weight: 600;">${tip.from}</div>
+                        <div class="transaction-from">${tip.time}</div>
+                    </div>
+                    <div>
+                        <div class="transaction-amount">$${tip.received}</div>
+                        <div style="font-size: 0.8em; color: #6B7280; text-align: right;">
+                            from $${tip.amount}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function shareProfile() {
+            const profileUrl = `${window.location.origin}/creator.html?id=${accountId.split('.')[0]}`;
+            
+            // Try to use native share if available
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Support me on Kudos',
+                    text: 'Send me Kudos directly! 💙',
+                    url: profileUrl
+                }).catch(err => console.log('Share failed:', err));
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(profileUrl).then(() => {
+                    document.getElementById('statusMessage').innerHTML = `
+                        <div class="success-message">
+                            ✓ Profile link copied to clipboard!<br>
+                            <small>${profileUrl}</small>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        document.getElementById('statusMessage').innerHTML = '';
+                    }, 3000);
+                });
+            }
+        }
+
+        function withdrawFunds() {
+            const totalEarnings = tipsData.reduce((sum, tip) => sum + parseFloat(tip.received), 0);
+            
+            if (totalEarnings === 0) {
+                alert('No funds to withdraw yet!');
+                return;
+            }
+
+            const confirmed = confirm(`Withdraw $${totalEarnings.toFixed(2)} to your bank account?`);
+            
+            if (confirmed) {
+                document.getElementById('statusMessage').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #2563EB;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">⏳</div>
+                        <div>Processing withdrawal...</div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    document.getElementById('statusMessage').innerHTML = `
+                        <div class="success-message">
+                            <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
+                            <div style="font-size: 1.2em; margin-bottom: 10px;">Withdrawal Initiated!</div>
+                            <div>$${totalEarnings.toFixed(2)} will arrive in your bank account within 1-2 business days.</div>
+                            <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                                Transaction ID: #KDS${Date.now().toString().slice(-8)}
+                            </div>
+                        </div>
+                    `;
+                }, 2000);
+            }
+        }
+
+        function viewAnalytics() {
+            alert('📊 Analytics feature coming soon!\n\nYou\'ll be able to see:\n• Tip trends over time\n• Top supporters\n• Peak tipping hours\n• Growth metrics');
+        }
+    </script>
+</body>
+</html>
