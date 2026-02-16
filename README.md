@@ -75,7 +75,6 @@ No middlemen. No delays. Just direct support.
 4. Transaction recorded on blockchain
    ↓
 5. Creator notified + balance updated
-```
 
 ### Key Technologies:
 - **NEAR Intents:** Currency conversion and routing
@@ -127,7 +126,6 @@ No middlemen. No delays. Just direct support.
 - NEAR Testnet account (optional for testing)
 
 ### Setup:
-```bash
 # Clone repository
 git clone https://github.com/theeagle2407/kudos
 cd kudos
